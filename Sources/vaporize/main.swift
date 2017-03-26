@@ -13,7 +13,12 @@ do {
     try console.run(
         executable: executable,
         commands: [
-            New(console: console)
+            New(console: console),
+            Group(id: "self", commands: [
+                SelfInstall(console: console, executable: executable)
+            ], help: [
+                    "Commands that affect the toolbox itself."
+            ]),
         ],
         arguments: Array(iterator),
         help: ["Spoofing MAC Address"])
