@@ -120,7 +120,7 @@ public final class New: Command {
         }
         
         if createDatabaseAnswer == "y" {
-            _ = try console.foregroundExecute(program: "mysql", arguments: ["--user", mysqlUser, "--password=\(mysqlPassword)", "-e", "\"CREATE", "DATABASE", "\(mysqlDatabase)\""])
+            _ = try console.foregroundExecute(program: "mysql", arguments: ["--user", mysqlUser, "--password=\(mysqlPassword)", "-e", "\"CREATE DATABASE \(mysqlDatabase)\""])
         }
         
         var answer = ""
