@@ -114,6 +114,15 @@ public final class New: Command {
             console.error(error.localizedDescription, newLine: true)
         }
         
+        var createDatabaseAnswer = ""
+        while createDatabaseAnswer != "y" && createDatabaseAnswer != "n" {
+            createDatabaseAnswer = console.ask("Create MySQL Database? (y/n)").lowercased()
+        }
+        
+        if createDatabaseAnswer == "y" {
+            _ = try console.backgroundExecute(program: "mysql", arguments: ["--user", mysqlUser, "--password=\(mysqlPassword)", "--execute=\"CREATE DATABASE \(mysqlDatabase);\""])
+        }
+        
         var answer = ""
         while answer != "y" && answer != "n" {
             answer = console.ask("Create Xcode project? (y/n)").lowercased()
