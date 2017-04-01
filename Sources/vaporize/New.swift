@@ -44,6 +44,7 @@ public final class New: Command {
         
         let mysqlTemplatePath = "\(directoryOfProject)/Sources/AppLogic/Templates/mysql.json"
         let redisTemplatePath = "\(directoryOfProject)/Sources/AppLogic/Templates/redis.json"
+        let gitignoreTemplatePath = "\(directoryOfProject)/Sources/AppLogic/Templates/gitignore"
         
         let packageFilePath = "\(directoryOfProject)/Package.swift"
         
@@ -79,6 +80,7 @@ public final class New: Command {
             let contentsOfMysqlFile = try String(contentsOfFile: mysqlTemplatePath)
             let contentsOfRedisFile = try String(contentsOfFile: redisTemplatePath)
             let contentsOfPackageFile = try String(contentsOfFile: packageFilePath)
+            let contentsOfGitignoreFile = try String(contentsOfFile: gitignoreTemplatePath)
             
             var filledInMysqlFile = contentsOfMysqlFile
             var filledInRedisFile = contentsOfRedisFile
@@ -98,6 +100,7 @@ public final class New: Command {
             try filledInMysqlFile.write(toFile: mysqlPath, atomically: true, encoding: .utf8)
             try filledInRedisFile.write(toFile: redisPath, atomically: true, encoding: .utf8)
             try filledInPackageFile.write(toFile: packageFilePath, atomically: true, encoding: .utf8)
+            try contentsOfGitignoreFile.write(toFile: directoryOfProject, atomically: true, encoding: .utf8)
             
             try FileManager.default.removeItem(atPath: "\(directoryOfProject)/Sources/AppLogic/Templates")
             console.success()
