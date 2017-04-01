@@ -100,7 +100,12 @@ public final class New: Command {
             try filledInMysqlFile.write(toFile: mysqlPath, atomically: true, encoding: .utf8)
             try filledInRedisFile.write(toFile: redisPath, atomically: true, encoding: .utf8)
             try filledInPackageFile.write(toFile: packageFilePath, atomically: true, encoding: .utf8)
-            try contentsOfGitignoreFile.write(toFile: directoryOfProject, atomically: true, encoding: .utf8)
+            
+            if FileManager.default.fileExists(atPath: "\(directoryOfProject)/.gitignore") {
+                _ = try console.backgroundExecute(program: "rm", arguments: ["\(directoryOfProject)/.gitignore"])
+            }
+            
+            try contentsOfGitignoreFile.write(toFile: "\(directoryOfProject)/.gitignore", atomically: true, encoding: .utf8)
             
             try FileManager.default.removeItem(atPath: "\(directoryOfProject)/Sources/AppLogic/Templates")
             console.success()
