@@ -38,14 +38,15 @@ public final class New: Command {
         let redisPort = console.ask("Redis Port (typically 6379):")
         
         let directoryOfProject = FileManager.default.currentDirectoryPath + "/" + nameOfProject
-        let directoryOfTemplates = "~/.vaporize"
+        
+        let directoryOfTemplates = "\(NSHomeDirectory())/.vaporize"
         
         let mysqlPath = "\(directoryOfProject)/Config/secrets/mysql.json"
         let redisPath = "\(directoryOfProject)/Config/secrets/redis.json"
         
         let mysqlTemplatePath = "\(directoryOfTemplates)/mysql.json"
         let redisTemplatePath = "\(directoryOfTemplates)/redis.json"
-        let gitignoreTemplatePath = "\(directoryOfTemplates)/gitignore"
+        let gitignoreTemplatePath = "\(directoryOfTemplates)/.gitignore"
         
         let packageFilePath = "\(directoryOfProject)/Package.swift"
         
@@ -95,6 +96,8 @@ public final class New: Command {
             
             filledInPackageFile = filledInPackageFile.replacingOccurrences(of: .name, with: packageName)
             
+            console.print(filledInMysqlFile, newLine: true)
+            
             try filledInMysqlFile.write(toFile: mysqlPath, atomically: true, encoding: .utf8)
             try filledInRedisFile.write(toFile: redisPath, atomically: true, encoding: .utf8)
             try filledInPackageFile.write(toFile: packageFilePath, atomically: true, encoding: .utf8)
@@ -103,7 +106,7 @@ public final class New: Command {
                 _ = try console.backgroundExecute(program: "rm", arguments: [gitignoreTemplatePath])
             }
             
-            try contentsOfGitignoreFile.write(toFile: gitignoreTemplatePath, atomically: true, encoding: .utf8)
+            try contentsOfGitignoreFile.write(toFile: "\(directoryOfProject)/.gitignore", atomically: true, encoding: .utf8)
             console.success()
         } catch {
             console.error()
