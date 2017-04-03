@@ -38,13 +38,14 @@ public final class New: Command {
         let redisPort = console.ask("Redis Port (typically 6379):")
         
         let directoryOfProject = FileManager.default.currentDirectoryPath + "/" + nameOfProject
+        let directoryOfTemplates = "~/.vaporize"
         
         let mysqlPath = "\(directoryOfProject)/Config/secrets/mysql.json"
         let redisPath = "\(directoryOfProject)/Config/secrets/redis.json"
         
-        let mysqlTemplatePath = "\(directoryOfProject)/Sources/AppLogic/Templates/mysql.json"
-        let redisTemplatePath = "\(directoryOfProject)/Sources/AppLogic/Templates/redis.json"
-        let gitignoreTemplatePath = "\(directoryOfProject)/Sources/AppLogic/Templates/gitignore"
+        let mysqlTemplatePath = "\(directoryOfTemplates)/mysql.json"
+        let redisTemplatePath = "\(directoryOfTemplates)/redis.json"
+        let gitignoreTemplatePath = "\(directoryOfTemplates)/gitignore"
         
         let packageFilePath = "\(directoryOfProject)/Package.swift"
         
@@ -52,17 +53,14 @@ public final class New: Command {
         
         do {
             if !FileManager.default.fileExists(atPath: packageFilePath) {
-                console.error("1", newLine: true)
                 throw ErrorCase.generalError("This is not a Vapor project. Please execute Vaporize in a Vapor project")
             }
             
             if !FileManager.default.fileExists(atPath: "\(directoryOfProject)/Config") {
-                console.error("2", newLine: true)
                 throw ErrorCase.generalError("No Config directory found.")
             }
             
             if !FileManager.default.fileExists(atPath: "\(directoryOfProject)/Config/secrets") {
-                console.error("3", newLine: true)
                 throw ErrorCase.generalError("No 'secrets' directory in 'Config' found.")
             }
             
@@ -101,13 +99,11 @@ public final class New: Command {
             try filledInRedisFile.write(toFile: redisPath, atomically: true, encoding: .utf8)
             try filledInPackageFile.write(toFile: packageFilePath, atomically: true, encoding: .utf8)
             
-            if FileManager.default.fileExists(atPath: "\(directoryOfProject)/.gitignore") {
-                _ = try console.backgroundExecute(program: "rm", arguments: ["\(directoryOfProject)/.gitignore"])
+            if FileManager.default.fileExists(atPath: gitignoreTemplatePath) {
+                _ = try console.backgroundExecute(program: "rm", arguments: [gitignoreTemplatePath])
             }
             
-            try contentsOfGitignoreFile.write(toFile: "\(directoryOfProject)/.gitignore", atomically: true, encoding: .utf8)
-            
-            try FileManager.default.removeItem(atPath: "\(directoryOfProject)/Sources/AppLogic/Templates")
+            try contentsOfGitignoreFile.write(toFile: gitignoreTemplatePath, atomically: true, encoding: .utf8)
             console.success()
         } catch {
             console.error()
