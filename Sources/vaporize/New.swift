@@ -96,8 +96,6 @@ public final class New: Command {
             
             filledInPackageFile = filledInPackageFile.replacingOccurrences(of: .name, with: packageName)
             
-            console.print(filledInMysqlFile, newLine: true)
-            
             try filledInMysqlFile.write(toFile: mysqlPath, atomically: true, encoding: .utf8)
             try filledInRedisFile.write(toFile: redisPath, atomically: true, encoding: .utf8)
             try filledInPackageFile.write(toFile: packageFilePath, atomically: true, encoding: .utf8)
