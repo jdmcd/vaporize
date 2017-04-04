@@ -11,7 +11,7 @@ public final class Controller: Command {
     public let help: [String] = [
         "Creates a controller",
         "Use with the following format:",
-        "controller <functionName>:<functionType>:<functionRoute>",
+        "controller ControllerName <functionName>:<functionType>:<functionRoute>",
         "Where \"functionType\" is \"get\" or \"post\""
     ]
     
@@ -76,7 +76,7 @@ public final class Controller: Command {
                     
                     if !isLast {
                         routesString += "\n"
-                        functionsString += "\n"
+                        functionsString += "\n\n"
                     }
                 }
                 
