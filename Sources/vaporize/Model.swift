@@ -31,7 +31,7 @@ public final class Model: Command {
             throw ConsoleError.insufficientArguments
         }
         
-        let modelName = args[0].capitalized
+        let modelName = args[0]
         let dbName = modelName.lowercased().pluralized
         args.remove(at: 0)
         let properties = try args.map { try Property(fullString: $0) }
@@ -90,18 +90,6 @@ enum ModelKeys: String {
     case propertiesMakeNode = "VAR_MAKE_NODE"
     case dbName = "VAR_DB_NAME"
     case builder = "VAR_BUILDER"
-}
-
-extension String {
-    func capitalizingFirstLetter() -> String {
-        let first = String(characters.prefix(1)).capitalized
-        let other = String(characters.dropFirst())
-        return first + other
-    }
-    
-    mutating func capitalizeFirstLetter() {
-        self = self.capitalizingFirstLetter()
-    }
 }
 
 struct Property {
