@@ -43,6 +43,7 @@ public final class New: Command {
         
         let mysqlPath = "\(directoryOfProject)/Config/secrets/mysql.json"
         let redisPath = "\(directoryOfProject)/Config/secrets/redis.json"
+        let gitignorePath = "\(directoryOfProject)/.gitignore"
         
         let mysqlTemplatePath = "\(directoryOfTemplates)/mysql.json"
         let redisTemplatePath = "\(directoryOfTemplates)/redis.json"
@@ -100,11 +101,11 @@ public final class New: Command {
             try filledInRedisFile.write(toFile: redisPath, atomically: true, encoding: .utf8)
             try filledInPackageFile.write(toFile: packageFilePath, atomically: true, encoding: .utf8)
             
-            if FileManager.default.fileExists(atPath: gitignoreTemplatePath) {
-                _ = try console.backgroundExecute(program: "rm", arguments: [gitignoreTemplatePath])
+            if FileManager.default.fileExists(atPath: gitignorePath) {
+                _ = try console.backgroundExecute(program: "rm", arguments: [gitignorePath])
             }
             
-            try contentsOfGitignoreFile.write(toFile: "\(directoryOfProject)/.gitignore", atomically: true, encoding: .utf8)
+            try contentsOfGitignoreFile.write(toFile: gitignorePath, atomically: true, encoding: .utf8)
             console.success()
         } catch {
             console.error()
