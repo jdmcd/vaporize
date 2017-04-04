@@ -58,12 +58,13 @@ public final class Model: Command {
                 if !isFirst {
                     propertyString += space(count: 4)
                     propertyInitString += space(count: 8)
-                    middleFirstInitString += space(count: 8)
                     propertyMakeNode += space(count: 12)
                     builder += space(count: 12)
                 } else {
-                    firstInitString += "\(space(count: 8))init("
+                    firstInitString += "\(space(count: 4))init("
                 }
+                
+                middleFirstInitString += space(count: 8)
                 
                 firstInitString += "\(property.name): \(property.type.rawValue.capitalized)"
                 
@@ -88,7 +89,7 @@ public final class Model: Command {
                 }
             }
             
-            let finalFirstInitString = "\(firstInitString)\n\(middleFirstInitString)\(space(count: 8))}"
+            let finalFirstInitString = "\(firstInitString)\n\(middleFirstInitString)\n\(space(count: 8))}"
             
             let contentsOfModelTemplate = try String(contentsOfFile: modelFile)
             var newModel = contentsOfModelTemplate
