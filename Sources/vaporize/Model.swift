@@ -50,11 +50,19 @@ public final class Model: Command {
             
             for (index, property) in properties.enumerated() {
                 let isLast = index == properties.count - 1
+                let isFirst = index == 0
                 
-                propertyString += "\(space(count: 4))var \(property.name): \(property.type.rawValue.capitalized)!"
-                propertyInitString += "\(space(count: 8))\(property.name) = try node.extract(\"\(property.name)\")"
-                propertyMakeNode += "\(space(count: 12))\"\(property.name)\": \(property.name)"
-                builder += "\(space(count: 12))builder.\(property.type.rawValue)(\"\(property.name)\")"
+                if !isFirst {
+                    propertyString += space(count: 4)
+                    propertyInitString += space(count: 8)
+                    propertyMakeNode += space(count: 12)
+                    builder += space(count: 12)
+                }
+                
+                propertyString += "var \(property.name): \(property.type.rawValue.capitalized)!"
+                propertyInitString += "\(property.name) = try node.extract(\"\(property.name)\")"
+                propertyMakeNode += "\"\(property.name)\": \(property.name)"
+                builder += "builder.\(property.type.rawValue)(\"\(property.name)\")"
                 
                 if !isLast {
                     //if it's not the last item, add a comma to the node array and add a new line to everything else
