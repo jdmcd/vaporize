@@ -56,7 +56,7 @@ public final class Controller: Command {
                 writePath = controllersFolderPath + "/API"
             }
             
-            try controllerName.write(toFile: writePath + "/\(controllerName).swift", atomically: true, encoding: .utf8)
+            try filledInControllerFile.write(toFile: writePath + "/\(controllerName).swift", atomically: true, encoding: .utf8)
             
             console.success("\(controllerName).swift located at \(writePath)/\(controllerName).swift", newLine: true)
         } catch {
