@@ -83,7 +83,7 @@ extension ModelName: Preparation {
 ```
 
 ## `controller`
-The `controller` command generates a super simple controller that can be used for adding routes/views.
+The `controller` command, when used without options, generates a super simple controller that can be used for adding routes/views.
 
 `vaporize controller ControllerName`
 
@@ -106,6 +106,39 @@ final class ControllerName {
 
     func addRoutes() {
 
+    }
+}
+```
+
+### Extra Controller options
+You can also specify functions and routes to add to the controller. Add them to the command similar to the `model` command, but in the following format: `<functionName>:<functionType>:<functionRoute>` where `functionName` is the name of the function, `functionType` is either `get` or `post`, and `functionRoute` is the route in which to add it to the drop.
+
+`vaporize controller NewController homeView:get:home logoutView:get:home`
+
+Running the above command will generate the following file:
+
+```swift
+import Vapor
+import HTTP
+
+final class NewController {
+    let drop: Droplet
+
+    init(drop: Droplet) {
+        self.drop = drop
+    }
+
+    func addRoutes() {
+        drop.get("home", handler: homeView)
+        drop.get("home", handler: logoutView)
+    }
+
+    func homeView(_ req: Request) throws -> ResponseRepresentable {
+        return ""
+    }
+
+    func logoutView(_ req: Request) throws -> ResponseRepresentable {
+        return ""
     }
 }
 ```
