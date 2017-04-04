@@ -133,7 +133,7 @@ public final class New: Command {
     }
 }
 
-extension String {
+fileprivate extension String {
     func replacingOccurrences(of: MySQLKey, with: String) -> String {
         return replacingOccurrences(of: of.rawValue, with: with)
     }
