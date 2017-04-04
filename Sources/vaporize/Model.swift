@@ -70,7 +70,7 @@ public final class Model: Command {
         newModel = newModel.replacingOccurrences(of: .dbName, with: dbName)
         newModel = newModel.replacingOccurrences(of: .builder, with: builder)
         
-        newModel.write(toFile: "model.swift", atomically: true, encoding: .utf8)
+        try newModel.write(toFile: "model.swift", atomically: true, encoding: .utf8)
     }
     
     func space(count: Int) -> String {
