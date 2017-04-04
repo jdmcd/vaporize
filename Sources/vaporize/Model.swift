@@ -78,6 +78,7 @@ public final class Model: Command {
                     propertyInitString += "\n"
                     propertyMakeNode += "\n"
                     builder += "\n"
+                    fiAssignString += "\n"
                     
                     firstInitProperties += ", "
                 } 
