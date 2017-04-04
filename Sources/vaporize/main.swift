@@ -15,6 +15,7 @@ do {
         commands: [
             New(console: console),
             Model(console: console),
+            Controller(console: console),
             Group(id: "self", commands: [
                 SelfInstall(console: console, executable: executable)
             ], help: [
