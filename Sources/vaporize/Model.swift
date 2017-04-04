@@ -48,8 +48,8 @@ public final class Model: Command {
             var propertyMakeNode = ""
             var builder = ""
             
-            var firstInitString = ""
-            var middleFirstInitString = ""
+            var firstInitProperties = ""
+            var fiAssignString = ""
             
             for (index, property) in properties.enumerated() {
                 let isLast = index == properties.count - 1
@@ -57,22 +57,19 @@ public final class Model: Command {
                 
                 if !isFirst {
                     propertyString += space(count: 4)
+                    fiAssignString += space(count: 8)
                     propertyInitString += space(count: 8)
                     propertyMakeNode += space(count: 12)
                     builder += space(count: 12)
-                } else {
-                    firstInitString += "\(space(count: 4))init("
                 }
                 
-                middleFirstInitString += space(count: 8)
-                
-                firstInitString += "\(property.name): \(property.type.rawValue.capitalized)"
+                firstInitProperties += "\(property.name): \(property.type.rawValue.capitalized)"
+                fiAssignString += "self.\(property.name) = \(property.name)"
                 
                 propertyString += "var \(property.name): \(property.type.rawValue.capitalized)!"
                 propertyInitString += "\(property.name) = try node.extract(\"\(property.name)\")"
                 propertyMakeNode += "\"\(property.name)\": \(property.name)"
                 builder += "builder.\(property.type.rawValue)(\"\(property.name)\")"
-                middleFirstInitString += "self.\(property.name) = \(property.name)"
                 
                 if !isLast {
                     //if it's not the last item, add a comma to the node array and add a new line to everything else
@@ -81,22 +78,18 @@ public final class Model: Command {
                     propertyInitString += "\n"
                     propertyMakeNode += "\n"
                     builder += "\n"
-                    middleFirstInitString += "\n"
                     
-                    firstInitString += ", "
-                } else {
-                    firstInitString += ") {"
-                }
+                    firstInitProperties += ", "
+                } 
             }
-            
-            let finalFirstInitString = "\(firstInitString)\n\(middleFirstInitString)\n\(space(count: 8))}"
             
             let contentsOfModelTemplate = try String(contentsOfFile: modelFile)
             var newModel = contentsOfModelTemplate
             
             newModel = newModel.replacingOccurrences(of: .modelName, with: modelName)
             newModel = newModel.replacingOccurrences(of: .properties, with: propertyString)
-            newModel = newModel.replacingOccurrences(of: .firstInit, with: finalFirstInitString)
+            newModel = newModel.replacingOccurrences(of: .firstInit, with: firstInitProperties)
+            newModel = newModel.replacingOccurrences(of: .fiAssign, with: fiAssignString)
             newModel = newModel.replacingOccurrences(of: .propertiesInit, with: propertyInitString)
             newModel = newModel.replacingOccurrences(of: .propertiesMakeNode, with: propertyMakeNode)
             newModel = newModel.replacingOccurrences(of: .dbName, with: dbName)
@@ -128,7 +121,8 @@ enum ModelKeys: String {
     case propertiesMakeNode = "VAR_MAKE_NODE"
     case dbName = "VAR_DB_NAME"
     case builder = "VAR_BUILDER"
-    case firstInit = "VAR_FIRST_INIT"
+    case firstInit = "VAR_FIRST_INIT_PROPERTIES"
+    case fiAssign = "VAR_FI_ASSIGN"
 }
 
 struct Property {
