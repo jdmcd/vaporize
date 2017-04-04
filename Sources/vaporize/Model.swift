@@ -97,6 +97,8 @@ public final class Model: Command {
             newModel = newModel.replacingOccurrences(of: .builder, with: builder)
             
             try newModel.write(toFile: "\(modelsFolderPath)/\(modelName).swift", atomically: true, encoding: .utf8)
+            
+            console.success("\(modelName).swift located at \(modelsFolderPath)/\(modelName).swift", newLine: true)
         } catch {
             console.error(error.localizedDescription, newLine: true)
         }
