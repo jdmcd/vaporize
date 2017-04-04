@@ -50,7 +50,11 @@ public final class Model: Command {
             propertyMakeNode += "\(space(count: 5))\"\(property.name)\": \(property.name)"
             
             if !isLast {
-                //if it's not the last item, add a comma to the node array
+                //if it's not the last item, add a comma to the node array and add a new line to everything else
+                propertyString += "\n"
+                propertyInitString += "\n"
+                propertyMakeNode += "\n"
+                builder += "\n"
                 propertyMakeNode += ","
             }
             
