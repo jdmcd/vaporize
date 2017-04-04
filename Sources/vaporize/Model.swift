@@ -45,20 +45,19 @@ public final class Model: Command {
         for (index, property) in properties.enumerated() {
             let isLast = index == properties.count - 1
             
-            propertyString += "\(space(count: 1))var \(property.name): \(property.type.rawValue.capitalized)!"
-            propertyInitString += "\(space(count: 3))\(property.name) = try node.extract(\"\(property.name)\")"
-            propertyMakeNode += "\(space(count: 5))\"\(property.name)\": \(property.name)"
+            propertyString += "\(space(count: 4))var \(property.name): \(property.type.rawValue.capitalized)!"
+            propertyInitString += "\(space(count: 8))\(property.name) = try node.extract(\"\(property.name)\")"
+            propertyMakeNode += "\(space(count: 12))\"\(property.name)\": \(property.name)"
+            builder += "\(space(count: 12))builder.\(property.type.rawValue)(\"\(property.name)\")"
             
             if !isLast {
                 //if it's not the last item, add a comma to the node array and add a new line to everything else
+                propertyMakeNode += ","
                 propertyString += "\n"
                 propertyInitString += "\n"
                 propertyMakeNode += "\n"
                 builder += "\n"
-                propertyMakeNode += ","
             }
-            
-            builder += "\(space(count: 5))builder.\(property.type.rawValue)(\"\(property.name)\")"
         }
         
         let contentsOfModelTemplate = try String(contentsOfFile: modelFile)
