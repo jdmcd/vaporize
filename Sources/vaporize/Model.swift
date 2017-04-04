@@ -45,16 +45,16 @@ public final class Model: Command {
         for (index, property) in properties.enumerated() {
             let isLast = index == properties.count - 1
             
-            propertyString += "\(space(count: 2))var \(property.name): \(property.type.rawValue.capitalized)!"
-            propertyInitString += "\(space(count: 4))\(property.name) = try node.extract(\"\(property.name)\")"
-            propertyMakeNode += "\(space(count: 6))\"\(property.name)\": \(property.name)"
+            propertyString += "\(space(count: 1))var \(property.name): \(property.type.rawValue.capitalized)!"
+            propertyInitString += "\(space(count: 3))\(property.name) = try node.extract(\"\(property.name)\")"
+            propertyMakeNode += "\(space(count: 5))\"\(property.name)\": \(property.name)"
             
             if !isLast {
                 //if it's not the last item, add a comma to the node array
                 propertyMakeNode += ","
             }
             
-            builder += "\(space(count: 6))builder.\(property.type.rawValue)(\"\(property.name)\")"
+            builder += "\(space(count: 5))builder.\(property.type.rawValue)(\"\(property.name)\")"
         }
         
         let contentsOfModelTemplate = try String(contentsOfFile: modelFile)
@@ -86,8 +86,8 @@ public final class Model: Command {
 enum ModelKeys: String {
     case modelName = "VAR_MODEL_NAME"
     case properties = "VAR_PROPERTIES"
-    case propertiesInit = "VAR_PROPERTIES_INIT"
-    case propertiesMakeNode = "VAR_PROPERTIES_MAKE_NODE"
+    case propertiesInit = "VAR_INIT"
+    case propertiesMakeNode = "VAR_MAKE_NODE"
     case dbName = "VAR_DB_NAME"
     case builder = "VAR_BUILDER"
 }
