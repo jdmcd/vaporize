@@ -19,58 +19,67 @@ public final class Model: Command {
     }
     
     public func run(arguments: [String]) throws {
-        //TODO: - check to make sure we're in a vapor project
-        
-        
-        let directoryOfTemplates = "\(NSHomeDirectory())/.vaporize"
-        let modelFile = "\(directoryOfTemplates)/model.swift"
-        
-        //require at least the name and one property
-        var args = arguments
-        if args.count < 2 {
-            throw ConsoleError.insufficientArguments
-        }
-        
-        let modelName = args[0]
-        let dbName = modelName.lowercased().pluralized
-        args.remove(at: 0)
-        let properties = try args.map { try Property(fullString: $0) }
-        
-        //holder strings
-        var propertyString = ""
-        var propertyInitString = ""
-        var propertyMakeNode = ""
-        var builder = ""
-        
-        for (index, property) in properties.enumerated() {
-            let isLast = index == properties.count - 1
+        do {
+            let currentPath = FileManager.default.currentDirectoryPath
+            let packageFilePath = currentPath + "/Package.swift"
+            let modelsFolderPath = currentPath + "/Sources/AppLogic/Models"
             
-            propertyString += "\(space(count: 4))var \(property.name): \(property.type.rawValue.capitalized)!"
-            propertyInitString += "\(space(count: 8))\(property.name) = try node.extract(\"\(property.name)\")"
-            propertyMakeNode += "\(space(count: 12))\"\(property.name)\": \(property.name)"
-            builder += "\(space(count: 12))builder.\(property.type.rawValue)(\"\(property.name)\")"
-            
-            if !isLast {
-                //if it's not the last item, add a comma to the node array and add a new line to everything else
-                propertyMakeNode += ","
-                propertyString += "\n"
-                propertyInitString += "\n"
-                propertyMakeNode += "\n"
-                builder += "\n"
+            if !FileManager.default.fileExists(atPath: packageFilePath) {
+                throw ErrorCase.generalError("This is not a Vapor project. Please execute Vaporize in a Vapor project")
             }
+            
+            let directoryOfTemplates = "\(NSHomeDirectory())/.vaporize"
+            let modelFile = "\(directoryOfTemplates)/model.swift"
+            
+            //require at least the name and one property
+            var args = arguments
+            if args.count < 2 {
+                throw ConsoleError.insufficientArguments
+            }
+            
+            let modelName = args[0]
+            let dbName = modelName.lowercased().pluralized
+            args.remove(at: 0)
+            let properties = try args.map { try Property(fullString: $0) }
+            
+            //holder strings
+            var propertyString = ""
+            var propertyInitString = ""
+            var propertyMakeNode = ""
+            var builder = ""
+            
+            for (index, property) in properties.enumerated() {
+                let isLast = index == properties.count - 1
+                
+                propertyString += "\(space(count: 4))var \(property.name): \(property.type.rawValue.capitalized)!"
+                propertyInitString += "\(space(count: 8))\(property.name) = try node.extract(\"\(property.name)\")"
+                propertyMakeNode += "\(space(count: 12))\"\(property.name)\": \(property.name)"
+                builder += "\(space(count: 12))builder.\(property.type.rawValue)(\"\(property.name)\")"
+                
+                if !isLast {
+                    //if it's not the last item, add a comma to the node array and add a new line to everything else
+                    propertyMakeNode += ","
+                    propertyString += "\n"
+                    propertyInitString += "\n"
+                    propertyMakeNode += "\n"
+                    builder += "\n"
+                }
+            }
+            
+            let contentsOfModelTemplate = try String(contentsOfFile: modelFile)
+            var newModel = contentsOfModelTemplate
+            
+            newModel = newModel.replacingOccurrences(of: .modelName, with: modelName)
+            newModel = newModel.replacingOccurrences(of: .properties, with: propertyString)
+            newModel = newModel.replacingOccurrences(of: .propertiesInit, with: propertyInitString)
+            newModel = newModel.replacingOccurrences(of: .propertiesMakeNode, with: propertyMakeNode)
+            newModel = newModel.replacingOccurrences(of: .dbName, with: dbName)
+            newModel = newModel.replacingOccurrences(of: .builder, with: builder)
+            
+            try newModel.write(toFile: "\(modelsFolderPath)/\(modelName).swift", atomically: true, encoding: .utf8)
+        } catch {
+            console.error(error.localizedDescription, newLine: true)
         }
-        
-        let contentsOfModelTemplate = try String(contentsOfFile: modelFile)
-        var newModel = contentsOfModelTemplate
-        
-        newModel = newModel.replacingOccurrences(of: .modelName, with: modelName)
-        newModel = newModel.replacingOccurrences(of: .properties, with: propertyString)
-        newModel = newModel.replacingOccurrences(of: .propertiesInit, with: propertyInitString)
-        newModel = newModel.replacingOccurrences(of: .propertiesMakeNode, with: propertyMakeNode)
-        newModel = newModel.replacingOccurrences(of: .dbName, with: dbName)
-        newModel = newModel.replacingOccurrences(of: .builder, with: builder)
-        
-        try newModel.write(toFile: "model.swift", atomically: true, encoding: .utf8)
     }
     
     func space(count: Int) -> String {
