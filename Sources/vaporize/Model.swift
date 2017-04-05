@@ -79,7 +79,6 @@ public final class Model: Command {
                 
                 if !isLast {
                     //if it's not the last item, add a comma to the node array and add a new line to everything else
-                    propertyMakeNode += ","
                     propertyString += "\n"
                     propertyInitString += "\n"
                     propertyMakeNode += "\n"
