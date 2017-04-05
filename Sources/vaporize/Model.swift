@@ -66,7 +66,7 @@ public final class Model: Command {
                 firstInitProperties += "\(property.name): \(property.type.rawValue.capitalized)"
                 fiAssignString += "self.\(property.name) = \(property.name)"
                 
-                propertyString += "var \(property.name): \(property.type.rawValue.capitalized)!"
+                propertyString += "var \(property.name): \(property.type.rawValue.capitalized)"
                 propertyInitString += "\(property.name) = try node.extract(\"\(property.name)\")"
                 
                 if property.type == .int || property.type == .double {
