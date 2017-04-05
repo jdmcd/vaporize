@@ -59,7 +59,7 @@ public final class Model: Command {
                     propertyString += space(count: 4)
                     fiAssignString += space(count: 8)
                     propertyInitString += space(count: 8)
-                    propertyMakeNode += space(count: 12)
+                    propertyMakeNode += space(count: 8)
                     builder += space(count: 12)
                 }
                 
@@ -68,7 +68,13 @@ public final class Model: Command {
                 
                 propertyString += "var \(property.name): \(property.type.rawValue.capitalized)!"
                 propertyInitString += "\(property.name) = try node.extract(\"\(property.name)\")"
-                propertyMakeNode += "\"\(property.name)\": \(property.name)"
+                
+                if property.type == .int || property.type == .double {
+                    propertyMakeNode += "node[\"\(property.name)\"] = try \(property.name).makeNode()"
+                } else {
+                    propertyMakeNode += "node[\"\(property.name)\"] = \(property.name).makeNode()"
+                }
+                
                 builder += "builder.\(property.type.rawValue)(\"\(property.name)\")"
                 
                 if !isLast {
