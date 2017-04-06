@@ -13,7 +13,7 @@ You can run the following code in your terminal to download Vaporize:
 `curl -sL 162llc.com/install.sh | bash`
 
 # Usage
-Vaporize has three main functions: `new`, `model`, and `controller`.
+Vaporize has four main functions: `new`, `model`, `controller`, and `view`.
 
 ## `new`
 The `new` command generates a new project using https://github.com/mcdappdev/Vapor-Template. After running `vaporize new`, you'll be presented with a list of questions that it will use to fill in templating options in the template. It'll even create a local MySQL store for you, if you ask it to.
@@ -32,10 +32,10 @@ import Fluent
 
 final class ModelName: Model {
     var id: Node?
-    var property1: String!
-    var property2: Bool!
-    var property3: Int!
-    var property4: Double!
+    var property1: String
+    var property2: Bool
+    var property3: Int
+    var property4: Double
 
     var exists: Bool = false
 
@@ -141,6 +141,38 @@ final class NewController {
         return ""
     }
 }
+```
+
+## view
+The view function will generate a new view filled in with a HTML title for the page.
+
+`vaporize view login Login`
+
+The above command will generate the following file:
+
+```
+#extend("Views/base")
+#export("title") { Login }
+
+#export("html") {
+
+}
+```
+
+If you use the base leaf file provided in the template, the end HTML result looks like this:
+
+```html
+
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login</title>
+</head>
+
+</html>
 ```
 
 # Thanks
