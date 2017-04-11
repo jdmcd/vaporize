@@ -23,6 +23,7 @@ public final class Model: Command {
             let currentPath = FileManager.default.currentDirectoryPath
             let packageFilePath = currentPath + "/Package.swift"
             let modelsFolderPath = currentPath + "/Sources/AppLogic/Models"
+            let preparationsPath = currentPath + "/Sources/AppLogic/Setup/Droplet+Preparations.swift"
             
             if !FileManager.default.fileExists(atPath: packageFilePath) {
                 throw ErrorCase.generalError("This is not a Vapor project. Please execute Vaporize in a Vapor project")
@@ -102,6 +103,14 @@ public final class Model: Command {
             newModel = newModel.replacingOccurrences(of: .builder, with: builder)
             
             try newModel.write(toFile: "\(modelsFolderPath)/\(modelName).swift", atomically: true, encoding: .utf8)
+            
+            let contentsOfPreparationsFile = try String(contentsOfFile: preparationsPath)
+            var filledInPreparation = contentsOfPreparationsFile
+            
+            let replaceWith = "drop.preparations.append(\(modelName).self)"
+            filledInPreparation = filledInPreparation.replacingOccurrences(of: "}", with: replaceWith)
+            
+            try filledInPreparation.write(toFile: preparationsPath, atomically: true, encoding: .utf8)
             
             console.success("\(modelName).swift located at \(modelsFolderPath)/\(modelName).swift", newLine: true)
         } catch {
