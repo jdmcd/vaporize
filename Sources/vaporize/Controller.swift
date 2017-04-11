@@ -26,6 +26,8 @@ public final class Controller: Command {
             let currentPath = FileManager.default.currentDirectoryPath
             let packageFilePath = currentPath + "/Package.swift"
             let controllersFolderPath = currentPath + "/Sources/AppLogic/Controllers"
+            let dropletRoutesFile = currentPath + "/Sources/AppLogic/Setup/Droplet+Routes.swift"
+            let dropletViewFile = currentPath + "/Sources/AppLogic/Setup/Droplet+Views.swift"
             
             if !FileManager.default.fileExists(atPath: packageFilePath) {
                 throw ErrorCase.generalError("This is not a Vapor project. Please execute Vaporize in a Vapor project")
@@ -98,6 +100,23 @@ public final class Controller: Command {
             }
             
             try filledInControllerFile.write(toFile: writePath + "/\(controllerName).swift", atomically: true, encoding: .utf8)
+            
+            var registerContent = ""
+            var route = ""
+            
+            if folder == "view" {
+                route = dropletViewFile
+                registerContent = try String(contentsOfFile: rote)
+            } else {
+                route = dropletRoutesFile
+                registerContent = try String(contentsOfFile: route)
+            }
+            
+            let replaceWith = "\(space(count: 4))\(controllerName)(drop: drop).addRoutes()\n}"
+            
+            var filledInRegistrationFile = registerContent
+            filledInRegistrationFile = filledInRegistrationFile.replacingOccurrences(of: "}", with: replaceWith)
+            try filledInRegistrationFile.write(toFile: route, atomically: true, encoding: .utf8)
             
             console.success("\(controllerName).swift located at \(writePath)/\(controllerName).swift", newLine: true)
         } catch {
