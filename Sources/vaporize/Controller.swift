@@ -106,7 +106,7 @@ public final class Controller: Command {
             
             if folder == "view" {
                 route = dropletViewFile
-                registerContent = try String(contentsOfFile: rote)
+                registerContent = try String(contentsOfFile: route)
             } else {
                 route = dropletRoutesFile
                 registerContent = try String(contentsOfFile: route)
