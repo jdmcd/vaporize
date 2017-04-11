@@ -107,7 +107,7 @@ public final class Model: Command {
             let contentsOfPreparationsFile = try String(contentsOfFile: preparationsPath)
             var filledInPreparation = contentsOfPreparationsFile
             
-            let replaceWith = "drop.preparations.append(\(modelName).self)"
+            let replaceWith = "\(space(count: 4))drop.preparations.append(\(modelName).self)\n}"
             filledInPreparation = filledInPreparation.replacingOccurrences(of: "}", with: replaceWith)
             
             try filledInPreparation.write(toFile: preparationsPath, atomically: true, encoding: .utf8)
