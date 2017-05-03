@@ -132,6 +132,8 @@ public final class New: Command {
             FileManager.default.changeCurrentDirectoryPath(directoryOfProject)
             _ = try console.foregroundExecute(program: "vapor", arguments: ["xcode", "-y"])
         }
+        
+        _ = try console.foregroundExecute(program: "cd", arguments: [directoryOfProject])
     }
 }
 
