@@ -105,6 +105,7 @@ public final class New: Command {
                 _ = try console.backgroundExecute(program: "rm", arguments: [gitignorePath])
             }
             
+            FileManager.default.changeCurrentDirectoryPath(directoryOfProject)
             _ = try console.backgroundExecute(program: "rm", arguments: ["-rf", ".git"])
             try contentsOfGitignoreFile.write(toFile: gitignorePath, atomically: true, encoding: .utf8)
             console.success()
