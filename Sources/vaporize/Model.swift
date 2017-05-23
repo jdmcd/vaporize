@@ -69,12 +69,12 @@ public final class Model: Command {
                 propertyString += "var \(property.name): \(property.type)"
                 propertyInitString += "\(property.name) = try row.get(\"\(property.name)\")"
                 
-                propertyMakeRow = "try row.set(\"\(property.name)\", \(property.name))"
+                propertyMakeRow += "try row.set(\"\(property.name)\", \(property.name))"
                 
                 if let parentName = property.parentName {
-                    builder += "builder.parent(\"\(parentName).self\")"
+                    builder += "builder.parent(\(parentName).self)"
                 } else {
-                    builder += "builder.\(property.type)(\"\(property.name)\")"
+                    builder += "builder.\(property.type.lowercased())(\"\(property.name)\")"
                 }
                 
                 if !isLast {
