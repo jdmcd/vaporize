@@ -54,7 +54,7 @@ public final class New: Command {
         _ = console.loadingBar()
         
         do {
-            _ = try console.backgroundExecute(program: "mkdir", arguments: ["\(directoryOfProject)/secrets"])
+            _ = try console.backgroundExecute(program: "mkdir", arguments: ["\(directoryOfProject)/Config/secrets"])
             
             if !FileManager.default.fileExists(atPath: packageFilePath) {
                 throw ErrorCase.generalError("This is not a Vapor project. Please execute Vaporize in a Vapor project")
