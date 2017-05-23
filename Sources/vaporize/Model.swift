@@ -63,15 +63,19 @@ public final class Model: Command {
                     builder += space(count: 12)
                 }
                 
-                firstInitProperties += "\(property.name): \(property.type.rawValue.capitalized)"
+                firstInitProperties += "\(property.name): \(property.type)"
                 fiAssignString += "self.\(property.name) = \(property.name)"
                 
-                propertyString += "var \(property.name): \(property.type.rawValue.capitalized)"
+                propertyString += "var \(property.name): \(property.type)"
                 propertyInitString += "\(property.name) = try row.get(\"\(property.name)\")"
                 
                 propertyMakeRow = "try row.set(\"\(property.name)\", \(property.name))"
                 
-                builder += "builder.\(property.type.rawValue)(\"\(property.name)\")"
+                if let parentName = property.parentName {
+                    builder += "builder.parent(\"\(parentName).self\")"
+                } else {
+                    builder += "builder.\(property.type)(\"\(property.name)\")"
+                }
                 
                 if !isLast {
                     //if it's not the last item, add a comma to the node array and add a new line to everything else
@@ -140,15 +144,20 @@ enum ModelKeys: String {
 
 struct Property {
     let name: String
-    let type: PropertyType
+    let type: String
+    
+    var parentName: String? = nil
     
     init(name: String, type: String) throws {
-        guard let propertyType = PropertyType(rawValue: type) else {
-            throw ConsoleError.insufficientArguments
+        
+        if let rawPropertyType = PropertyType(rawValue: type) {
+            self.type = rawPropertyType.rawValue.capitalized
+        } else {
+            self.type = PropertyType.identifier.rawValue.capitalized
+            self.parentName = type.capitalized
         }
         
         self.name = name
-        self.type = propertyType
     }
     
     init(fullString: String) throws {
@@ -166,6 +175,7 @@ enum PropertyType: String {
     case string
     case double
     case bool
+    case identifier
 }
 
 extension String {
