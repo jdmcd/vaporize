@@ -51,6 +51,8 @@ public final class Model: Command {
             var firstInitProperties = ""
             var fiAssignString = ""
             
+            var relationProperties = [Property]()
+            
             for (index, property) in properties.enumerated() {
                 let isLast = index == properties.count - 1
                 let isFirst = index == 0
@@ -72,6 +74,7 @@ public final class Model: Command {
                 propertyMakeRow += "try row.set(\"\(property.name)\", \(property.name))"
                 
                 if let parentName = property.parentName {
+                    relationProperties.append(property)
                     builder += "builder.parent(\(parentName).self)"
                 } else {
                     builder += "builder.\(property.type.lowercased())(\"\(property.name)\")"
@@ -87,6 +90,25 @@ public final class Model: Command {
                     
                     firstInitProperties += ", "
                 } 
+            }
+            
+            for (index, property) in relationProperties.enumerated() {
+                let isLast = index == properties.count - 1
+                let isFirst = index == 0
+                guard let parentName = property.parentName else { return }
+                
+                if !isFirst {
+                    propertyString += space(count: 4)
+                }
+                
+                propertyString += "\(space(count: 4))var \(parentName.lowercased()): Parent<\(modelName), \(parentName)>\n"
+                propertyString += "\(space(count: 8))return parent(id: \(property.name.lowercased()))\n"
+                propertyString += "\(space(count: 4))}\n\n"
+                
+                if !isLast {
+                    //if it's not the last item, add a comma to the node array and add a new line to everything else
+                    propertyString += "\n"
+                }
             }
             
             let contentsOfModelTemplate = try String(contentsOfFile: modelFile)
