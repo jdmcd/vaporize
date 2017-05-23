@@ -101,7 +101,11 @@ public final class Model: Command {
                     propertyString += space(count: 4)
                 }
                 
-                propertyString += "\n\n"
+                if isFirst {
+                    propertyString += "\n"
+                }
+                
+                propertyString += "\n"
                 propertyString += "\(space(count: 4))var \(parentName.lowercased()): Parent<\(modelName), \(parentName)>\n"
                 propertyString += "\(space(count: 8))return parent(id: \(property.name.lowercased()))\n"
                 propertyString += "\(space(count: 4))}"
