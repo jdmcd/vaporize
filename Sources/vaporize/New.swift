@@ -54,6 +54,8 @@ public final class New: Command {
         _ = console.loadingBar()
         
         do {
+            _ = try console.backgroundExecute(program: "mkdir", arguments: ["\(directoryOfProject)/secrets"])
+            
             if !FileManager.default.fileExists(atPath: packageFilePath) {
                 throw ErrorCase.generalError("This is not a Vapor project. Please execute Vaporize in a Vapor project")
             }
@@ -73,9 +75,6 @@ public final class New: Command {
             if FileManager.default.fileExists(atPath: redisPath) {
                 _ = try console.backgroundExecute(program: "rm", arguments: [redisPath])
             }
-            
-            guard let secretsFolderURL = URL(string: "\(directoryOfProject)/Config/secrets") else { return }
-            try FileManager.default.createDirectory(at: secretsFolderURL, withIntermediateDirectories: false, attributes: nil)
             
             _ = try console.backgroundExecute(program: "touch", arguments: [mysqlPath])
             _ = try console.backgroundExecute(program: "touch", arguments: [redisPath])
