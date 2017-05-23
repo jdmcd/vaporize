@@ -101,9 +101,10 @@ public final class Model: Command {
                     propertyString += space(count: 4)
                 }
                 
+                propertyString += "\n\n"
                 propertyString += "\(space(count: 4))var \(parentName.lowercased()): Parent<\(modelName), \(parentName)>\n"
                 propertyString += "\(space(count: 8))return parent(id: \(property.name.lowercased()))\n"
-                propertyString += "\(space(count: 4))}\n\n"
+                propertyString += "\(space(count: 4))}"
                 
                 if !isLast {
                     //if it's not the last item, add a comma to the node array and add a new line to everything else
