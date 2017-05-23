@@ -74,6 +74,9 @@ public final class New: Command {
                 _ = try console.backgroundExecute(program: "rm", arguments: [redisPath])
             }
             
+            guard let secretsFolderURL = URL(string: "\(directoryOfProject)/Config/secrets") else { return }
+            try FileManager.default.createDirectory(at: secretsFolderURL, withIntermediateDirectories: false, attributes: nil)
+            
             _ = try console.backgroundExecute(program: "touch", arguments: [mysqlPath])
             _ = try console.backgroundExecute(program: "touch", arguments: [redisPath])
             
