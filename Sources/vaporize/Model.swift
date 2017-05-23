@@ -22,8 +22,8 @@ public final class Model: Command {
         do {
             let currentPath = FileManager.default.currentDirectoryPath
             let packageFilePath = currentPath + "/Package.swift"
-            let modelsFolderPath = currentPath + "/Sources/AppLogic/Models"
-            let preparationsPath = currentPath + "/Sources/AppLogic/Setup/Droplet+Preparations.swift"
+            let modelsFolderPath = currentPath + "/Sources/App/Models"
+            let preparationsPath = currentPath + "/Sources/App/Setup/Config/Config+Preparations.swift"
             
             if !FileManager.default.fileExists(atPath: packageFilePath) {
                 throw ErrorCase.generalError("This is not a Vapor project. Please execute Vaporize in a Vapor project")
@@ -39,14 +39,13 @@ public final class Model: Command {
             }
             
             let modelName = args[0]
-            let dbName = modelName.lowercased().pluralized
             args.remove(at: 0)
             let properties = try args.map { try Property(fullString: $0) }
             
             //holder strings
             var propertyString = ""
             var propertyInitString = ""
-            var propertyMakeNode = ""
+            var propertyMakeRow = ""
             var builder = ""
             
             var firstInitProperties = ""
@@ -60,7 +59,7 @@ public final class Model: Command {
                     propertyString += space(count: 4)
                     fiAssignString += space(count: 8)
                     propertyInitString += space(count: 8)
-                    propertyMakeNode += space(count: 8)
+                    propertyMakeRow += space(count: 8)
                     builder += space(count: 12)
                 }
                 
@@ -68,13 +67,9 @@ public final class Model: Command {
                 fiAssignString += "self.\(property.name) = \(property.name)"
                 
                 propertyString += "var \(property.name): \(property.type.rawValue.capitalized)"
-                propertyInitString += "\(property.name) = try node.extract(\"\(property.name)\")"
+                propertyInitString += "\(property.name) = try row.get(\"\(property.name)\")"
                 
-                if property.type == .int || property.type == .double {
-                    propertyMakeNode += "node[\"\(property.name)\"] = try \(property.name).makeNode()"
-                } else {
-                    propertyMakeNode += "node[\"\(property.name)\"] = \(property.name).makeNode()"
-                }
+                propertyMakeRow = "try row.set(\"\(property.name)\", \(property.name))"
                 
                 builder += "builder.\(property.type.rawValue)(\"\(property.name)\")"
                 
@@ -82,7 +77,7 @@ public final class Model: Command {
                     //if it's not the last item, add a comma to the node array and add a new line to everything else
                     propertyString += "\n"
                     propertyInitString += "\n"
-                    propertyMakeNode += "\n"
+                    propertyMakeRow += "\n"
                     builder += "\n"
                     fiAssignString += "\n"
                     
@@ -98,8 +93,7 @@ public final class Model: Command {
             newModel = newModel.replacingOccurrences(of: .firstInit, with: firstInitProperties)
             newModel = newModel.replacingOccurrences(of: .fiAssign, with: fiAssignString)
             newModel = newModel.replacingOccurrences(of: .propertiesInit, with: propertyInitString)
-            newModel = newModel.replacingOccurrences(of: .propertiesMakeNode, with: propertyMakeNode)
-            newModel = newModel.replacingOccurrences(of: .dbName, with: dbName)
+            newModel = newModel.replacingOccurrences(of: .propertiesMakeRow, with: propertyMakeRow)
             newModel = newModel.replacingOccurrences(of: .builder, with: builder)
             
             try newModel.write(toFile: "\(modelsFolderPath)/\(modelName).swift", atomically: true, encoding: .utf8)
@@ -107,8 +101,12 @@ public final class Model: Command {
             let contentsOfPreparationsFile = try String(contentsOfFile: preparationsPath)
             var filledInPreparation = contentsOfPreparationsFile
             
-            let replaceWith = "\(space(count: 4))drop.preparations.append(\(modelName).self)\n}"
-            filledInPreparation = filledInPreparation.replacingOccurrences(of: "}", with: replaceWith)
+            //add to preparations file
+            filledInPreparation = filledInPreparation.replacingOccurrences(of: "}", with: "")
+            filledInPreparation = filledInPreparation.replacingOccurrences(of: "}", with: "")
+            filledInPreparation += "\(space(count: 8))preparations.append(\(modelName).self)\n"
+            filledInPreparation += "\(space(count: 4))}\n"
+            filledInPreparation += "}\n"
             
             try filledInPreparation.write(toFile: preparationsPath, atomically: true, encoding: .utf8)
             
@@ -135,8 +133,7 @@ enum ModelKeys: String {
     case modelName = "VAR_MODEL_NAME"
     case properties = "VAR_PROPERTIES"
     case propertiesInit = "VAR_INIT"
-    case propertiesMakeNode = "VAR_MAKE_NODE"
-    case dbName = "VAR_DB_NAME"
+    case propertiesMakeRow = "VAR_MAKE_ROW"
     case builder = "VAR_BUILDER"
     case firstInit = "VAR_FIRST_INIT_PROPERTIES"
     case fiAssign = "VAR_FI_ASSIGN"
