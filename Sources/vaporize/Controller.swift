@@ -25,16 +25,17 @@ public final class Controller: Command {
         do {
             let currentPath = FileManager.default.currentDirectoryPath
             let packageFilePath = currentPath + "/Package.swift"
-            let controllersFolderPath = currentPath + "/Sources/AppLogic/Controllers"
-            let dropletRoutesFile = currentPath + "/Sources/AppLogic/Setup/Droplet+Routes.swift"
-            let dropletViewFile = currentPath + "/Sources/AppLogic/Setup/Droplet+Views.swift"
+            let controllersFolderPath = currentPath + "/Sources/App/Controllers"
+            let dropletRoutesFile = currentPath + "/Sources/App/Setup/Droplet/Droplet+Routes.swift"
+            let dropletViewFile = currentPath + "/Sources/App/Setup/Droplet/Droplet+Views.swift"
             
             if !FileManager.default.fileExists(atPath: packageFilePath) {
                 throw ErrorCase.generalError("This is not a Vapor project. Please execute Vaporize in a Vapor project")
             }
             
             let directoryOfTemplates = "\(NSHomeDirectory())/.vaporize"
-            let controllerFile = "\(directoryOfTemplates)/controller.swift"
+            let apiControllerFile = "\(directoryOfTemplates)/apicontroller.swift"
+            let viewControllerFile = "\(directoryOfTemplates)/viewcontroller.swift"
             
             //require at least the name and one property
             var args = arguments
@@ -45,8 +46,20 @@ public final class Controller: Command {
             let controllerName = args[0]
             args.removeFirst()
             
+            var folder = ""
+            while folder != "view" && folder != "api" {
+                folder = console.ask("Create in Views folder or API folder? (view/api)").lowercased()
+            }
+            
             //initial changing of the file
-            let contentsOfControllerFile = try String(contentsOfFile: controllerFile)
+            var contentsOfControllerFile = ""
+            
+            if folder == "view" {
+                contentsOfControllerFile = try String(contentsOfFile: viewControllerFile)
+            } else {
+                contentsOfControllerFile = try String(contentsOfFile: apiControllerFile)
+            }
+            
             var filledInControllerFile = contentsOfControllerFile
             filledInControllerFile = filledInControllerFile.replacingOccurrences(of: .controllerName, with: controllerName)
             
@@ -68,7 +81,7 @@ public final class Controller: Command {
                         functionsString += space(count: 4)
                     }
                     
-                    routesString += "drop.\(function.method.rawValue)(\"\(function.route)\", handler: \(function.name))"
+                    routesString += "build.\(function.method.rawValue)(\"\(function.route)\", handler: \(function.name))"
                     
                     functionsString += "func \(function.name)(_ req: Request) throws -> ResponseRepresentable {"
                     functionsString += "\n"
@@ -84,11 +97,6 @@ public final class Controller: Command {
                 
                 filledInControllerFile = filledInControllerFile.replacingOccurrences(of: .functions, with: functionsString)
                 filledInControllerFile = filledInControllerFile.replacingOccurrences(of: .routes, with: routesString)
-            }
-
-            var folder = ""
-            while folder != "view" && folder != "api" {
-                folder = console.ask("Create in Views folder or API folder? (view/api)").lowercased()
             }
 
             var writePath = ""
@@ -112,10 +120,18 @@ public final class Controller: Command {
                 registerContent = try String(contentsOfFile: route)
             }
             
-            let replaceWith = "\(space(count: 4))\(controllerName)(drop: drop).addRoutes()\n}"
+            var replacementText = ""
             
-            var filledInRegistrationFile = registerContent
-            filledInRegistrationFile = filledInRegistrationFile.replacingOccurrences(of: "}", with: replaceWith)
+            if folder == "view" {
+                replacementText = "try collection(\(controllerName)(view))"
+            } else {
+                replacementText = "try collection(\(controllerName).self)"
+            }
+            
+            var filledInRegistrationFile = registerContent.replacingOccurrences(of: "}\n", with: "")
+            filledInRegistrationFile += "\(space(count: 4))\(replacementText)\n"
+            filledInRegistrationFile += "\(space(count: 4))}\n"
+            filledInRegistrationFile += "}\n"
             try filledInRegistrationFile.write(toFile: route, atomically: true, encoding: .utf8)
             
             console.success("\(controllerName).swift located at \(writePath)/\(controllerName).swift", newLine: true)
