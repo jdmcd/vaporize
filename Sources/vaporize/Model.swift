@@ -103,7 +103,7 @@ public final class Model: Command {
             
             //add to preparations file
             filledInPreparation = filledInPreparation.replacingOccurrences(of: "}\n", with: "")
-            filledInPreparation += "\(space(count: 8))preparations.append(\(modelName).self)\n"
+            filledInPreparation += "\(space(count: 4))preparations.append(\(modelName).self)\n"
             filledInPreparation += "\(space(count: 4))}\n"
             filledInPreparation += "}\n"
             
