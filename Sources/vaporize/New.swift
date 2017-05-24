@@ -41,8 +41,8 @@ public final class New: Command {
         
         let directoryOfTemplates = "\(NSHomeDirectory())/.vaporize"
         
-        let mysqlPath = "\(directoryOfProject)/Config/secrets/mysql.json"
-        let redisPath = "\(directoryOfProject)/Config/secrets/redis.json"
+        let mysqlPath = "\(directoryOfProject)/Config/development/mysql.json"
+        let redisPath = "\(directoryOfProject)/Config/development/redis.json"
         let gitignorePath = "\(directoryOfProject)/.gitignore"
         
         let mysqlTemplatePath = "\(directoryOfTemplates)/mysql.json"
@@ -54,7 +54,7 @@ public final class New: Command {
         _ = console.loadingBar()
         
         do {
-            _ = try console.backgroundExecute(program: "mkdir", arguments: ["\(directoryOfProject)/Config/secrets"])
+            _ = try console.backgroundExecute(program: "mkdir", arguments: ["\(directoryOfProject)/Config/development"])
             
             if !FileManager.default.fileExists(atPath: packageFilePath) {
                 throw ErrorCase.generalError("This is not a Vapor project. Please execute Vaporize in a Vapor project")
