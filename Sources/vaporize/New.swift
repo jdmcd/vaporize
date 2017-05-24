@@ -64,8 +64,8 @@ public final class New: Command {
                 throw ErrorCase.generalError("No Config directory found.")
             }
             
-            if !FileManager.default.fileExists(atPath: "\(directoryOfProject)/Config/secrets") {
-                throw ErrorCase.generalError("No 'secrets' directory in 'Config' found.")
+            if !FileManager.default.fileExists(atPath: "\(directoryOfProject)/Config/development") {
+                throw ErrorCase.generalError("No 'development' directory in 'Config' found.")
             }
             
             if FileManager.default.fileExists(atPath: mysqlPath) {
@@ -75,8 +75,6 @@ public final class New: Command {
             if FileManager.default.fileExists(atPath: redisPath) {
                 _ = try console.backgroundExecute(program: "rm", arguments: [redisPath])
             }
-            
-            console.print(mysqlPath, newLine: true)
             
             _ = try console.backgroundExecute(program: "touch", arguments: [mysqlPath])
             _ = try console.backgroundExecute(program: "touch", arguments: [redisPath])
