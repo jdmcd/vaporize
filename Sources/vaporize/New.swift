@@ -76,6 +76,8 @@ public final class New: Command {
                 _ = try console.backgroundExecute(program: "rm", arguments: [redisPath])
             }
             
+            console.print(mysqlPath, newLine: true)
+            
             _ = try console.backgroundExecute(program: "touch", arguments: [mysqlPath])
             _ = try console.backgroundExecute(program: "touch", arguments: [redisPath])
             
