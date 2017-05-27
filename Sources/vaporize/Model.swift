@@ -48,6 +48,7 @@ public final class Model: Command {
             var propertyMakeRow = ""
             var builder = ""
             var makeJson = ""
+            var initJson = ""
             
             var firstInitProperties = ""
             var fiAssignString = ""
@@ -80,9 +81,10 @@ public final class Model: Command {
                     builder += "builder.parent(\(parentName).self)"
                 } else {
                     builder += "builder.\(property.type.lowercased())(\"\(property.name)\")"
+                    
+                    initJson = "\(property.name) = try json.get(\"\(property.name)\")"
+                    makeJson += "try json.set(\"\(property.name)\", \(property.name))"
                 }
-                
-                makeJson += "try json.set(\"\(property.name)\", \(property.name))"
                 
                 if !isLast {
                     //if it's not the last item, add a comma to the node array and add a new line to everything else
@@ -132,6 +134,7 @@ public final class Model: Command {
             newModel = newModel.replacingOccurrences(of: .propertiesMakeRow, with: propertyMakeRow)
             newModel = newModel.replacingOccurrences(of: .builder, with: builder)
             newModel = newModel.replacingOccurrences(of: .makeJson, with: makeJson)
+            newModel = newModel.replacingOccurrences(of: .jsonInit, with: initJson)
             
             try newModel.write(toFile: "\(modelsFolderPath)/\(modelName).swift", atomically: true, encoding: .utf8)
             
