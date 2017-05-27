@@ -47,6 +47,7 @@ public final class Model: Command {
             var propertyInitString = ""
             var propertyMakeRow = ""
             var builder = ""
+            var makeJson = ""
             
             var firstInitProperties = ""
             var fiAssignString = ""
@@ -63,6 +64,7 @@ public final class Model: Command {
                     propertyInitString += space(count: 8)
                     propertyMakeRow += space(count: 8)
                     builder += space(count: 12)
+                    makeJson += space(count: 8)
                 }
                 
                 firstInitProperties += "\(property.name): \(property.type)"
@@ -80,11 +82,14 @@ public final class Model: Command {
                     builder += "builder.\(property.type.lowercased())(\"\(property.name)\")"
                 }
                 
+                makeJson += "try json.set(\"\(property.name)\", \(property.name))"
+                
                 if !isLast {
                     //if it's not the last item, add a comma to the node array and add a new line to everything else
                     propertyString += "\n"
                     propertyInitString += "\n"
                     propertyMakeRow += "\n"
+                    makeJson += "\n"
                     builder += "\n"
                     fiAssignString += "\n"
                     
@@ -126,6 +131,7 @@ public final class Model: Command {
             newModel = newModel.replacingOccurrences(of: .propertiesInit, with: propertyInitString)
             newModel = newModel.replacingOccurrences(of: .propertiesMakeRow, with: propertyMakeRow)
             newModel = newModel.replacingOccurrences(of: .builder, with: builder)
+            newModel = newModel.replacingOccurrences(of: .makeJson, with: makeJson)
             
             try newModel.write(toFile: "\(modelsFolderPath)/\(modelName).swift", atomically: true, encoding: .utf8)
             
@@ -167,6 +173,8 @@ enum ModelKeys: String {
     case builder = "VAR_BUILDER"
     case firstInit = "VAR_FIRST_INIT_PROPERTIES"
     case fiAssign = "VAR_FI_ASSIGN"
+    case jsonInit = "VAR_JSON_INIT"
+    case makeJson = "VAR_MAKE_JSON"
 }
 
 struct Property {
