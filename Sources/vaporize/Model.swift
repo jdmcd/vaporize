@@ -75,15 +75,14 @@ public final class Model: Command {
                 propertyInitString += "\(property.name) = try row.get(\"\(property.name)\")"
                 
                 propertyMakeRow += "try row.set(\"\(property.name)\", \(property.name))"
+                initJson = "\(property.name) = try json.get(\"\(property.name)\")"
+                makeJson += "try json.set(\"\(property.name)\", \(property.name))"
                 
                 if let parentName = property.parentName {
                     relationProperties.append(property)
                     builder += "builder.parent(\(parentName).self)"
                 } else {
                     builder += "builder.\(property.type.lowercased())(\"\(property.name)\")"
-                    
-                    initJson = "\(property.name) = try json.get(\"\(property.name)\")"
-                    makeJson += "try json.set(\"\(property.name)\", \(property.name))"
                 }
                 
                 if !isLast {
