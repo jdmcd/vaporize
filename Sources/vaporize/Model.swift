@@ -75,7 +75,7 @@ public final class Model: Command {
                 propertyInitString += "\(property.name) = try row.get(\"\(property.name)\")"
                 
                 propertyMakeRow += "try row.set(\"\(property.name)\", \(property.name))"
-                initJson = "\(property.name) = try json.get(\"\(property.name)\")"
+                initJson += "\(property.name) = try json.get(\"\(property.name)\")"
                 makeJson += "try json.set(\"\(property.name)\", \(property.name))"
                 
                 if let parentName = property.parentName {
