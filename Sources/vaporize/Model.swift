@@ -66,6 +66,7 @@ public final class Model: Command {
                     propertyMakeRow += space(count: 8)
                     builder += space(count: 12)
                     makeJson += space(count: 8)
+                    initJson += space(count: 8)
                 }
                 
                 firstInitProperties += "\(property.name): \(property.type)"
@@ -90,6 +91,7 @@ public final class Model: Command {
                     propertyString += "\n"
                     propertyInitString += "\n"
                     propertyMakeRow += "\n"
+                    initJson += "\n"
                     makeJson += "\n"
                     builder += "\n"
                     fiAssignString += "\n"
