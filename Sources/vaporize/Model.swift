@@ -130,7 +130,12 @@ public final class Model: Command {
                 }
                 
                 propertyString += "\n"
-                propertyString += "\(space(count: 4))var \(parentName.lowercased()): Parent<\(modelName), \(parentName)> {\n"
+                propertyString += "\(space(count: 4))var \(parentName.lowercased()): Parent<\(modelName), \(parentName)>"
+                
+                if property.optional {
+                    propertyString += "?"
+                }
+                propertyString += " {\n"
                 propertyString += "\(space(count: 8))return parent(id: \(property.name.lowercased()))\n"
                 propertyString += "\(space(count: 4))}"
                 
