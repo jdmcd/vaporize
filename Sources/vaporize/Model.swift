@@ -5,7 +5,7 @@ public final class Model: Command {
     public let id = "model"
     
     public let signature: [Argument] = [
-    
+        
     ]
     
     public let help: [String] = [
@@ -113,7 +113,7 @@ public final class Model: Command {
                     fiAssignString += "\n"
                     
                     firstInitProperties += ", "
-                } 
+                }
             }
             
             for (index, property) in relationProperties.enumerated() {
@@ -227,7 +227,7 @@ struct Property {
         var type = splitStrings[1]
         var optional = false
         
-        if type.contains("/") {
+        if type.hasSuffix("_") {
             optional = true
             type.remove(at: type.endIndex)
         }
