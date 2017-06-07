@@ -70,9 +70,17 @@ public final class Model: Command {
                 }
                 
                 firstInitProperties += "\(property.name): \(property.type)"
+                if property.optional {
+                    firstInitProperties += "?"
+                }
+                
                 fiAssignString += "self.\(property.name) = \(property.name)"
                 
                 propertyString += "var \(property.name): \(property.type)"
+                if property.optional {
+                    propertyString += "?"
+                }
+                
                 propertyInitString += "\(property.name) = try row.get(\"\(property.name)\")"
                 
                 propertyMakeRow += "try row.set(\"\(property.name)\", \(property.name))"
@@ -81,9 +89,17 @@ public final class Model: Command {
                 
                 if let parentName = property.parentName {
                     relationProperties.append(property)
-                    builder += "builder.parent(\(parentName).self)"
+                    if property.optional {
+                        builder += "builder.parent(\(parentName).self, optional: true)"
+                    } else {
+                        builder += "builder.parent(\(parentName).self)"
+                    }
                 } else {
-                    builder += "builder.\(property.type.lowercased())(\"\(property.name)\")"
+                    if property.optional {
+                        builder += "builder.\(property.type.lowercased())(\"\(property.name)\", optional: true)"
+                    } else {
+                        builder += "builder.\(property.type.lowercased())(\"\(property.name)\")"
+                    }
                 }
                 
                 if !isLast {
@@ -184,10 +200,11 @@ enum ModelKeys: String {
 struct Property {
     let name: String
     let type: String
+    let optional: Bool
     
     var parentName: String? = nil
     
-    init(name: String, type: String) throws {
+    init(name: String, type: String, optional: Bool) throws {
         
         if let rawPropertyType = PropertyType(rawValue: type) {
             self.type = rawPropertyType.rawValue.capitalized
@@ -196,6 +213,7 @@ struct Property {
             self.parentName = type.capitalized
         }
         
+        self.optional = optional
         self.name = name
     }
     
@@ -205,7 +223,16 @@ struct Property {
             throw ConsoleError.insufficientArguments
         }
         
-        try self.init(name: splitStrings[0], type: splitStrings[1])
+        let name = splitStrings[0]
+        var type = splitStrings[1]
+        var optional = false
+        
+        if type.contains("?") {
+            optional = true
+            type.remove(at: type.endIndex)
+        }
+        
+        try self.init(name: name, type: type, optional: optional)
     }
 }
 
