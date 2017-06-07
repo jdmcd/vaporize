@@ -227,9 +227,9 @@ struct Property {
         var type = splitStrings[1]
         var optional = false
         
-        if type.hasSuffix("_") {
+        if type.hasSuffix("!") {
             optional = true
-            type.remove(at: type.endIndex)
+            type = type.substring(to: type.index(before: type.endIndex))
         }
         
         try self.init(name: name, type: type, optional: optional)
