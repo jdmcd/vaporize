@@ -227,7 +227,7 @@ struct Property {
         var type = splitStrings[1]
         var optional = false
         
-        if type.contains("?") {
+        if type.contains("/") {
             optional = true
             type.remove(at: type.endIndex)
         }
