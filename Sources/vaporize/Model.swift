@@ -52,12 +52,15 @@ public final class Model: Command {
             
             var firstInitProperties = ""
             var fiAssignString = ""
+            var fieldEnumKeys = ""
             
             var relationProperties = [Property]()
             
+            //first loop builds the actual model
             for (index, property) in properties.enumerated() {
                 let isLast = index == properties.count - 1
                 let isFirst = index == 0
+                let fieldString = "\(modelName).Field.\(property.name)"
                 
                 if !isFirst {
                     propertyString += space(count: 4)
@@ -67,6 +70,7 @@ public final class Model: Command {
                     builder += space(count: 12)
                     makeJson += space(count: 8)
                     initJson += space(count: 8)
+                    fieldEnumKeys += space(count: 8)
                 }
                 
                 firstInitProperties += "\(property.name): \(property.type)"
@@ -81,11 +85,11 @@ public final class Model: Command {
                     propertyString += "?"
                 }
                 
-                propertyInitString += "\(property.name) = try row.get(\"\(property.name)\")"
+                propertyInitString += "\(property.name) = try row.get(\(fieldString))"
                 
-                propertyMakeRow += "try row.set(\"\(property.name)\", \(property.name))"
-                initJson += "\(property.name) = try json.get(\"\(property.name)\")"
-                makeJson += "try json.set(\"\(property.name)\", \(property.name))"
+                propertyMakeRow += "try row.set(\(fieldString), \(property.name))"
+                initJson += "\(property.name) = try json.get(\(fieldString))"
+                makeJson += "try json.set(\(fieldString), \(property.name))"
                 
                 if let parentName = property.parentName {
                     relationProperties.append(property)
@@ -96,11 +100,13 @@ public final class Model: Command {
                     }
                 } else {
                     if property.optional {
-                        builder += "builder.\(property.type.lowercased())(\"\(property.name)\", optional: true)"
+                        builder += "builder.\(property.type.lowercased())(\(fieldString), optional: true)"
                     } else {
-                        builder += "builder.\(property.type.lowercased())(\"\(property.name)\")"
+                        builder += "builder.\(property.type.lowercased())(\(fieldString))"
                     }
                 }
+                
+                fieldEnumKeys += "case \(property.name)"
                 
                 if !isLast {
                     //if it's not the last item, add a comma to the node array and add a new line to everything else
@@ -111,11 +117,13 @@ public final class Model: Command {
                     makeJson += "\n"
                     builder += "\n"
                     fiAssignString += "\n"
+                    fieldEnumKeys += "\n"
                     
                     firstInitProperties += ", "
                 }
             }
             
+            //second loop that builds the relationships
             for (index, property) in relationProperties.enumerated() {
                 let isLast = index == properties.count - 1
                 let isFirst = index == 0
@@ -157,6 +165,7 @@ public final class Model: Command {
             newModel = newModel.replacingOccurrences(of: .builder, with: builder)
             newModel = newModel.replacingOccurrences(of: .makeJson, with: makeJson)
             newModel = newModel.replacingOccurrences(of: .jsonInit, with: initJson)
+            newModel = newModel.replacingOccurrences(of: .fieldEnumKeys, with: fieldEnumKeys)
             
             try newModel.write(toFile: "\(modelsFolderPath)/\(modelName).swift", atomically: true, encoding: .utf8)
             
@@ -200,6 +209,7 @@ enum ModelKeys: String {
     case fiAssign = "VAR_FI_ASSIGN"
     case jsonInit = "VAR_JSON_INIT"
     case makeJson = "VAR_MAKE_JSON"
+    case fieldEnumKeys = "VAR_FIELD_ENUM_CASES"
 }
 
 struct Property {
