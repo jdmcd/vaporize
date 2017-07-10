@@ -153,6 +153,7 @@ public final class Model: Command {
                 }
             }
             
+            
             let contentsOfModelTemplate = try String(contentsOfFile: modelFile)
             var newModel = contentsOfModelTemplate
             
@@ -166,6 +167,51 @@ public final class Model: Command {
             newModel = newModel.replacingOccurrences(of: .makeJson, with: makeJson)
             newModel = newModel.replacingOccurrences(of: .jsonInit, with: initJson)
             newModel = newModel.replacingOccurrences(of: .fieldEnumKeys, with: fieldEnumKeys)
+            
+            
+            //figure out if they want Node conformance
+            if arguments.flag("node") {
+                var nodeString = ""
+                
+                nodeString += "extension \(modelName): NodeRepresentable {"
+                nodeString += "\n"
+                nodeString += space(count: 4)
+                nodeString += "func makeNode(in context: Context?) throws -> Node {"
+                nodeString += "\n"
+                nodeString += space(count: 8)
+                nodeString += "return Node(try makeJSON())"
+                nodeString += "\n"
+                nodeString += space(count: 4)
+                nodeString += "}"
+                nodeString += "\n"
+                nodeString += "}"
+                
+                newModel = newModel.replacingOccurrences(of: .node, with: nodeString)
+            } else {
+                newModel = newModel.replacingOccurrences(of: .node, with: "")
+            }
+            
+            //figure out if they want ViewData conformance
+            if arguments.flag("viewdata") || arguments.flag("viewData") {
+                var viewDataString = ""
+                
+                viewDataString += "extension \(modelName): ViewDataRepresentable {"
+                viewDataString += "\n"
+                viewDataString += space(count: 4)
+                viewDataString += "func makeViewData() throws -> ViewData {"
+                viewDataString += "\n"
+                viewDataString += space(count: 8)
+                viewDataString += "return ViewData(try makeJSON())"
+                viewDataString += "\n"
+                viewDataString += space(count: 4)
+                viewDataString += "}"
+                viewDataString += "\n"
+                viewDataString += "}"
+                
+                newModel = newModel.replacingOccurrences(of: .viewData, with: viewDataString)
+            } else {
+                newModel = newModel.replacingOccurrences(of: .viewData, with: "")
+            }
             
             try newModel.write(toFile: "\(modelsFolderPath)/\(modelName).swift", atomically: true, encoding: .utf8)
             
@@ -210,6 +256,8 @@ enum ModelKeys: String {
     case jsonInit = "VAR_JSON_INIT"
     case makeJson = "VAR_MAKE_JSON"
     case fieldEnumKeys = "VAR_FIELD_ENUM_CASES"
+    case node = "VAR_NODE"
+    case viewData = "VAR_VIEW_DATA"
 }
 
 struct Property {
