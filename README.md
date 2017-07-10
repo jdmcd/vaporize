@@ -26,18 +26,16 @@ The `model` command generates a new model using the same format as in the Vapor 
 The above command will generate the following output:
 
 ```swift
-import Foundation
 import Vapor
-import Fluent
+import FluentProvider
 
 final class ModelName: Model {
-    var id: Node?
+    var storage = Storage()
+
     var property1: String
     var property2: Bool
     var property3: Int
     var property4: Double
-
-    var exists: Bool = false
 
     init(property1: String, property2: Bool, property3: Int, property4: Double) {
         self.property1 = property1
@@ -46,41 +44,165 @@ final class ModelName: Model {
         self.property4 = property4
     }
 
-    init(node: Node, in context: Context) throws {
-        id = try node.extract("id")
-        property1 = try node.extract("property1")
-        property2 = try node.extract("property2")
-        property3 = try node.extract("property3")
-        property4 = try node.extract("property4")
+    init(row: Row) throws {
+        property1 = try row.get(ModelName.Field.property1)
+        property2 = try row.get(ModelName.Field.property2)
+        property3 = try row.get(ModelName.Field.property3)
+        property4 = try row.get(ModelName.Field.property4)
     }
 
-    func makeNode(context: Context) throws -> Node {
-        return try Node(node: [
-            "id": id,
-            "property1": property1,
-            "property2": property2,
-            "property3": property3,
-            "property4": property4
-        ])
+    init(json: JSON) throws {
+        property1 = try json.get(ModelName.Field.property1)
+        property2 = try json.get(ModelName.Field.property2)
+        property3 = try json.get(ModelName.Field.property3)
+        property4 = try json.get(ModelName.Field.property4)
+    }
+
+    func makeRow() throws -> Row {
+        var row = Row()
+
+        try row.set(ModelName.Field.property1, property1)
+        try row.set(ModelName.Field.property2, property2)
+        try row.set(ModelName.Field.property3, property3)
+        try row.set(ModelName.Field.property4, property4)
+
+        return row
     }
 }
 
 //MARK: - Preparation
 extension ModelName: Preparation {
     static func prepare(_ database: Database) throws {
-        try database.create("modelnames", closure: { builder in
+        try database.create(self, closure: { builder in
             builder.id()
-            builder.string("property1")
-            builder.bool("property2")
-            builder.int("property3")
-            builder.double("property4")
+            builder.string(ModelName.Field.property1)
+            builder.bool(ModelName.Field.property2)
+            builder.int(ModelName.Field.property3)
+            builder.double(ModelName.Field.property4)
         })
     }
 
     static func revert(_ database: Database) throws {
     }
 }
+
+//MARK: - JSONConvertible
+extension ModelName: JSONConvertible {
+    func makeJSON() throws -> JSON {
+        var json = JSON()
+
+        try json.set(ModelName.Field.id, id)
+        try json.set(ModelName.Field.property1, property1)
+        try json.set(ModelName.Field.property2, property2)
+        try json.set(ModelName.Field.property3, property3)
+        try json.set(ModelName.Field.property4, property4)
+        try json.set(ModelName.createdAtKey, createdAt)
+        try json.set(ModelName.updatedAtKey, updatedAt)
+
+        return json
+    }
+}
+
+
+//MARK: - Timestampable
+extension ModelName: Timestampable { }
+
+//MARK: - Field
+extension ModelName {
+    enum Field: String {
+        case id
+        case property1
+        case property2
+        case property3
+        case property4
+    }
+}
 ```
+
+You can also add the `--viewData` or `--node` flag which will add `ViewDataRepresentable` and `NodeRepresentable` conformance, respectively. 
+
+In addition, if you use a capital letter as the start of the type value, the parser will infer a relationship to another entity. Like this:
+
+`vaporize model ModelName user_id:User`
+
+Generates:
+
+```swift
+import Vapor
+import FluentProvider
+
+final class ModelName: Model {
+    var storage = Storage()
+
+    var user_id: Identifier
+
+    var user: Parent<ModelName, User> {
+        return parent(id: user_id)
+    }
+
+    init(user_id: Identifier) {
+        self.user_id = user_id
+    }
+
+    init(row: Row) throws {
+        user_id = try row.get(ModelName.Field.user_id)
+    }
+
+    init(json: JSON) throws {
+        user_id = try json.get(ModelName.Field.user_id)
+    }
+
+    func makeRow() throws -> Row {
+        var row = Row()
+
+        try row.set(ModelName.Field.user_id, user_id)
+
+        return row
+    }
+}
+
+//MARK: - Preparation
+extension ModelName: Preparation {
+    static func prepare(_ database: Database) throws {
+        try database.create(self, closure: { builder in
+            builder.id()
+            builder.parent(User.self)
+        })
+    }
+
+    static func revert(_ database: Database) throws {
+    }
+}
+
+//MARK: - JSONConvertible
+extension ModelName: JSONConvertible {
+    func makeJSON() throws -> JSON {
+        var json = JSON()
+
+        try json.set(ModelName.Field.id, id)
+        try json.set(ModelName.Field.user_id, user_id)
+        try json.set(ModelName.createdAtKey, createdAt)
+        try json.set(ModelName.updatedAtKey, updatedAt)
+
+        return json
+    }
+}
+
+
+//MARK: - Timestampable
+extension ModelName: Timestampable { }
+
+//MARK: - Field
+extension ModelName {
+    enum Field: String {
+        case id
+        case user_id
+    }
+}
+```
+
+**Note:** This will also add the `Preparation` to `Config`'s array to automatically setup the database.
+
 
 ## `controller`
 The `controller` command, when used without options, generates a super simple controller that can be used for adding routes/views.
@@ -91,23 +213,43 @@ The above command results in the following question:
 
 `Create in Views folder or API folder? (view/api)`
 
-Responding with "view" will produce the following file:
+Responding with `view` will produce the following file:
 
 ```swift
 import Vapor
-import HTTP
+import Flash
 
-final class ControllerName {
-    let drop: Droplet
+final class ControllerName: RouteCollection {
+    private let view: ViewRenderer
 
-    init(drop: Droplet) {
-        self.drop = drop
+    init(_ view: ViewRenderer) {
+        self.view = view
     }
 
-    func addRoutes() {
+    func build(_ builder: RouteBuilder) throws {
+        builder.frontend() { build in
 
+        }
     }
 }
+```
+
+Responding with `api` will produce the following file:
+
+```swift
+import Vapor
+import Flash
+
+final class ControllerName: RouteCollection {
+    func build(_ builder: RouteBuilder) throws {
+        builder.version() { build in
+
+        }
+    }
+}
+
+//MARK: - EmptyInitializable
+extension ControllerName: EmptyInitializable { }
 ```
 
 ### Extra Controller options
@@ -119,18 +261,14 @@ Running the above command will generate the following file:
 
 ```swift
 import Vapor
-import HTTP
+import Flash
 
-final class NewController {
-    let drop: Droplet
-
-    init(drop: Droplet) {
-        self.drop = drop
-    }
-
-    func addRoutes() {
-        drop.get("home", handler: homeView)
-        drop.get("home", handler: logoutView)
+final class NewController: RouteCollection {
+    func build(_ builder: RouteBuilder) throws {
+        builder.version() { build in
+            build.get("home", handler: homeView)
+        build.get("home", handler: logoutView)
+        }
     }
 
     func homeView(_ req: Request) throws -> ResponseRepresentable {
@@ -141,7 +279,12 @@ final class NewController {
         return ""
     }
 }
+
+//MARK: - EmptyInitializable
+extension NewController: EmptyInitializable { }
 ```
+
+**Note:** This command will also register the controller in the appropriate file so that it is accesible
 
 ## view
 The view function will generate a new view filled in with a HTML title for the page.
