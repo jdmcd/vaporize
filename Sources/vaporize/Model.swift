@@ -35,11 +35,31 @@ public final class Model: Command {
             //require at least the name and one property
             var args = arguments
             if args.count < 2 {
+                console.error("Insufficient Arguments", newLine: true)
                 throw ConsoleError.insufficientArguments
             }
             
+            let node = arguments.flag("node")
+            let viewData = arguments.flag("viewdata") || arguments.flag("viewData")
+            
             let modelName = args[0]
             args.remove(at: 0)
+            
+            if node {
+                guard let index = args.index(of: "--node=true") else { throw ConsoleError.argumentNotFound }
+                args.remove(at: index)
+            }
+            
+            if viewData {
+                if let index = args.index(of: "--viewdata=true") {
+                    args.remove(at: index)
+                }
+                
+                if let index = args.index(of: "--viewData=true") {
+                    args.remove(at: index)
+                }
+            }
+            
             let properties = try args.map { try Property(fullString: $0) }
             
             //holder strings
@@ -153,7 +173,6 @@ public final class Model: Command {
                 }
             }
             
-            
             let contentsOfModelTemplate = try String(contentsOfFile: modelFile)
             var newModel = contentsOfModelTemplate
             
@@ -170,9 +189,11 @@ public final class Model: Command {
             
             
             //figure out if they want Node conformance
-            if arguments.flag("node") {
+            if node {
                 var nodeString = ""
                 
+                nodeString += "\n"
+                nodeString += "//MARK: - NodeRepresentable \n"
                 nodeString += "extension \(modelName): NodeRepresentable {"
                 nodeString += "\n"
                 nodeString += space(count: 4)
@@ -192,9 +213,13 @@ public final class Model: Command {
             }
             
             //figure out if they want ViewData conformance
-            if arguments.flag("viewdata") || arguments.flag("viewData") {
+            if viewData {
                 var viewDataString = ""
                 
+                if node {
+                    viewDataString += "\n"
+                }
+                viewDataString += "//MARK: - ViewDataRepresentable \n"
                 viewDataString += "extension \(modelName): ViewDataRepresentable {"
                 viewDataString += "\n"
                 viewDataString += space(count: 4)
@@ -207,6 +232,7 @@ public final class Model: Command {
                 viewDataString += "}"
                 viewDataString += "\n"
                 viewDataString += "}"
+                viewDataString += "\n"
                 
                 newModel = newModel.replacingOccurrences(of: .viewData, with: viewDataString)
             } else {
